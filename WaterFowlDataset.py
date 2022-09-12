@@ -1,6 +1,9 @@
 #Base format of Waterfowl dataset torch loader, all the future implementation should based on this loader or evolve from it.
+import sys
+sys.path.append('/home/zt253/data/WaterfowlDataset/WaterfowlDatasetScripts/Split_data')
 from logging import root
 from anno_util import readTxt
+from cust_transform import *
 import torch
 import matplotlib.pyplot as plt
 import numpy as np
@@ -8,6 +11,7 @@ import cv2
 import torch.utils.data as data
 import pandas as pd
 from collections import defaultdict
+
 
 class WaterFowlDataset(data.Dataset):
     def __init__(self,root_dir,csv_dir,cust_transform,torch_transform,task = 'altitude_split_Robert',phase = 'Train',**kwargs):
@@ -29,7 +33,7 @@ class WaterFowlDataset(data.Dataset):
         self.torch_transform = torch_transform
         self.additinal_args = kwargs    
     def __getitem__(self,index):
-        image_name = self.image_dict.keys()[index]
+        image_name = list(self.image_dict.keys())[index]
         if ('classification_name' in self.image_dict[image_name]):
             anno_name = self.image_dict[image_name]['classification_name']
         else:
@@ -38,18 +42,28 @@ class WaterFowlDataset(data.Dataset):
         anno_dir = self.root_dir+'/'+anno_name
         image = cv2.cvtColor(cv2.imread(image_dir),cv2.COLOR_BGR2RGB)
         anno_data = readTxt(anno_dir)
-        anno_data['altitude'] = self.image_dict['image_name']['altitude']
-        anno_data['bbox'] = torch.from_numpy(np.asarray(bbox)).float()
-        if (self.height_list!=[] and image.size[0]!=512):
-            height = self.height_list[index]
-            size = int(512.*GSD_calculation(height,'Pro2')/GSD_calculation(90.0,'Pro2'))
-            image,bbox = random_crop(image,bbox,size)
-            image,bbox = resize(image,bbox,512)
-        for trans in self.cust_transform:
-            image,bbox =trans(image,bbox)
-        image = self.transform(image)
-        labels = np.ones(len(bbox))
-        labels = torch.from_numpy(np.asarray(labels)).long()
-        return image,bbox,labels
+        anno_data['altitude'] = self.image_dict[image_name]['height']
+        
+        
+        image,anno_data = self.cust_transform(image,anno_data)
+        anno_data['bbox'] = torch.from_numpy(np.asarray(anno_data['bbox'])).float()
+        if (self.torch_transform):
+            image = self.torch_transform(image)
+        detection_labels = np.ones(len(anno_data['bbox']))
+        detection_labels = torch.from_numpy(np.asarray(detection_labels)).long()
+        anno_data['detection_labels'] = detection_labels
+        return image,anno_data
     def __len__(self):
-        return len(self.anno_list)
+        return len(self.image_dict)
+    
+if __name__ == '__main__':
+    root_dir = '/home/zt253/data/WaterfowlDataset/Processed/Bird_D'
+    csv_dir = '/home/zt253/data/WaterfowlDataset/Processed/Bird_D/image_info.csv'
+    cust_transform = cust_sequence([RandomHorizontalFlip,RandomVerticalFlip,random_rotate],0.5)
+    torch_transform = None
+    task = 'bbox_split_Robert'
+    phase = 'Train'
+    dataset = WaterFowlDataset(root_dir=root_dir,csv_dir = csv_dir,cust_transform = cust_transform,torch_transform=None,task = task,phase = phase)
+    for image,anno in dataset:
+        print (image.shape)
+        

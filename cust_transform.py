@@ -99,7 +99,7 @@ def corners2points(corners):
     return bbox
 
 
-def random_rotate(image, anno_data, angle):
+def random_rotate(image, anno_data, angle = random.randint(0,180)):
     """
     Rotate the bounding box
     """
@@ -122,7 +122,6 @@ def random_rotate(image, anno_data, angle):
     calculated = np.dot(M, corners.T).T
     calculated = calculated.reshape(-1, 8)
     rotated_box = get_enclosing_box(calculated)
-    print(rotated_box)
     anno_data['bbox'] = corners2points(rotated_box)
 
     # perform the actual rotation and return the image
@@ -153,14 +152,16 @@ class cust_sequence(object):
         self.probs = probs
 
     def __call__(self, image, anno_data):
+        if (self.augmentations == None):
+            return image,anno_data
         for idx, aug in enumerate(self.augmentations):
             if (type(self.probs) == list):
                 prob = self.probs[idx]
             else:
                 prob = self.probs
             if random.random() < prob:
-                images, anno_data = aug(image, anno_data)
-        return images, anno_data
+                image, anno_data = aug(image, anno_data)
+        return image, anno_data
 
 
 def display_image(image, anno_data):
