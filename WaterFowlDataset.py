@@ -1,14 +1,30 @@
+#Base format of Waterfowl dataset torch loader, all the future implementation should based on this loader or evolve from it.
 import torch
 import matplotlib.pyplot as plt
-import glob
 import numpy as np
 import cv2
 import torch.utils.data as data
-import random
-from transform import *
-from encoder import DataEncoder
-class ListDataset(data.Dataset):
-    def __init__(self,txt_dir,cust_transform,transform,input_size,isHeight = False):
+import pandas as pd
+from collections import defaultdict
+
+class WaterFowlDataset(data.Dataset):
+    def __init__(self,root_dir,csv_dir,cust_transform,torch_transform,task = 'classification',**kwargs):
+        df = pd.read_csv(csv_dir)
+        self.image_dict = defaultdict(dict)
+        for idx in range(len(df)):
+            item = df.iloc[idx]
+            self.image_dict[item['image_name']] = dict()
+            for keys in item.keys():
+                if (keys== 'image_name'):
+                    pass
+                else:
+                    self.image_dict[item['image_name']][keys] = item[keys]
+        self.task = task
+        self.cust_transform = cust_transform
+        self.torch_transform = torch_transform
+        self.additinal_args = kwargs     
+        
+            
         with open(txt_dir,'r') as f:
             self.txt_data = f.readlines()
         self.image_list = [i.split(' ')[0] for i in self.txt_data]

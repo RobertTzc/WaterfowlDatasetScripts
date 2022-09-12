@@ -159,9 +159,10 @@ def visual_distribution(train_list,image_dict,target_dir,title = 'category'):
     plt.show()
     
 if __name__ == '__main__':
-    #title = 'altitude'
-    title = 'bbox'
-    folder_name = 'Bird_I'
+    title = 'altitude'
+    #title = 'bbox'
+    #title = 'category'
+    folder_name = 'Bird_D'
     #anno_title = 'classification_name'
     anno_title = 'annotation_name'
     image_dict= get_image_dict(root_dir = '/home/zt253/data/WaterfowlDataset/Processed/{}'.format(folder_name),
@@ -172,7 +173,7 @@ if __name__ == '__main__':
     print ('ideal_split',ideal_train_split)
     print ('*'*10,'staring finding the best split',len(image_list))
     #find_best_split(0,image_list,[],image_dict)
-    random_select(image_list = image_list,image_dict = image_dict,ideal_train_split = ideal_train_split,epoch = 10000,title = title)
+    random_select(image_list = image_list,image_dict = image_dict,ideal_train_split = ideal_train_split,epoch = 100000,title = title)
     print ('*'*20,'Final result of train split:',len(combination))
     print (combination)
 
