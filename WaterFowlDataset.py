@@ -1,4 +1,6 @@
 #Base format of Waterfowl dataset torch loader, all the future implementation should based on this loader or evolve from it.
+from logging import root
+from anno_util import readTxt
 import torch
 import matplotlib.pyplot as plt
 import numpy as np
@@ -8,7 +10,8 @@ import pandas as pd
 from collections import defaultdict
 
 class WaterFowlDataset(data.Dataset):
-    def __init__(self,root_dir,csv_dir,cust_transform,torch_transform,task = 'classification',**kwargs):
+    def __init__(self,root_dir,csv_dir,cust_transform,torch_transform,task = 'altitude_split_Robert',phase = 'Train',**kwargs):
+        assert task in ['altitude_split_Robert','bbox_split_Robert','category_split_Robert']
         df = pd.read_csv(csv_dir)
         self.image_dict = defaultdict(dict)
         for idx in range(len(df)):
@@ -19,45 +22,24 @@ class WaterFowlDataset(data.Dataset):
                     pass
                 else:
                     self.image_dict[item['image_name']][keys] = item[keys]
+        self.root_dir = root_dir            
         self.task = task
+        self.phase = phase
         self.cust_transform = cust_transform
         self.torch_transform = torch_transform
-        self.additinal_args = kwargs     
-        
-            
-        with open(txt_dir,'r') as f:
-            self.txt_data = f.readlines()
-        self.image_list = [i.split(' ')[0] for i in self.txt_data]
-        self.anno_list = [i.split(' ')[1] for i in self.txt_data]
-        if (isHeight):
-            self.height_list = [int(float(i.split(' ')[2].replace('REF',''))) for i in self.txt_data]
-        else:
-            self.height_list = []
-        self.cust_transform = cust_transform
-        self.transform = transform
-        self.input_size = input_size
-        self.encoder = DataEncoder()
-        assert len(self.image_list) == len(self.anno_list)
+        self.additinal_args = kwargs    
     def __getitem__(self,index):
-        image_dir = self.image_list[index]
-        anno_dir  = self.anno_list[index]
-        image = Image.open(image_dir).convert("RGB")
-        if (anno_dir==''):
-            bbox = np.asarray([[]])
+        image_name = self.image_dict.keys()[index]
+        if ('classification_name' in self.image_dict[image_name]):
+            anno_name = self.image_dict[image_name]['classification_name']
         else:
-            
-            with open(anno_dir,'r') as f:
-                anno_data = f.readlines()
-            if (anno_data==[]):
-                bbox = np.asarray([[]])
-            else:
-                bbox = []
-                for line in anno_data:
-                    line = line.replace('\n','').split(',')
-                    box = [int(i) for i in line]
-                    bbox.append(box)
-            bbox = np.asarray(bbox)
-        bbox=torch.from_numpy(bbox).float()
+            anno_name = self.image_dict[image_name]['annotation_name']
+        image_dir  = self.root_dir+'/'+image_name
+        anno_dir = self.root_dir+'/'+anno_name
+        image = cv2.cvtColor(cv2.imread(image_dir),cv2.COLOR_BGR2RGB)
+        anno_data = readTxt(anno_dir)
+        anno_data['altitude'] = self.image_dict['image_name']['altitude']
+        anno_data['bbox'] = torch.from_numpy(np.asarray(bbox)).float()
         if (self.height_list!=[] and image.size[0]!=512):
             height = self.height_list[index]
             size = int(512.*GSD_calculation(height,'Pro2')/GSD_calculation(90.0,'Pro2'))

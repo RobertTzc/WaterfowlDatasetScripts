@@ -1,6 +1,18 @@
 import numpy as np
 import pandas as pd
 from collections import Counter
+def GSD_calculation(image,anno_data,drone_type = 'Pro2'):
+    height = anno_data['altitude']
+    if (drone_type == 'Pro2'):
+        ref_GSD = (13.2 * 90)/(10.26*5472)
+        GSD=(13.2 * height)/(10.26*5472)
+    elif (drone_type == 'Air2'):
+        ref_GSD = (6.4*90)/(4.3*8000)
+        GSD = (6.4*height)/(4.3*8000)
+    else:
+        ref_GSD = (13.2 * 90)/(10.26*5472)
+        GSD = (13.2 * 90)/(10.26*5472)
+    return GSD,ref_GSD
 
 def readTxt(txt_dir):
     with open(txt_dir,'r') as f:
