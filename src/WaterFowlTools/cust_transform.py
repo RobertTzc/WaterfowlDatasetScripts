@@ -90,6 +90,22 @@ def points2corners(bbox):
     corners = np.hstack((x1, y1, x2, y2, x3, y3, x4, y4))
     return corners
 
+def random_crop_preset(image, anno_data, size):
+    h, w = image.shape[:2]
+    dw, dh = w-size, h-size
+    rand_w = random.randint(0, dw)
+    rand_h = random.randint(0, dh)
+    image = image[rand_h:size+rand_h, rand_w:rand_w+size, :]
+    bbox = anno_data['bbox']
+    new_bbox = []
+    for box in bbox:
+        if((min(box[0], box[2]) >= rand_w or max(box[0], box[2]) <= rand_w+size)
+           and (min(box[1], box[3]) >= rand_h or max(box[1], box[3]) <= rand_h+size)):
+            new_bbox.append([box[0]-rand_w, box[1]-rand_h,
+                            box[2]-rand_w, box[3]-rand_h])
+    anno_data['bbox'] = new_bbox
+    return image, anno_data
+
 
 def corners2points(corners):
     bbox = []

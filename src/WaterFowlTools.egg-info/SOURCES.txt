@@ -1,0 +1,17 @@
+LICENCE
+README.md
+pyproject.toml
+src/WaterFowlTools/Apply_split.py
+src/WaterFowlTools/Dataset.py
+src/WaterFowlTools/FixData_H_I.py
+src/WaterFowlTools/WriteTrainTestSplit.py
+src/WaterFowlTools/__init__.py
+src/WaterFowlTools/anno_util.py
+src/WaterFowlTools/cust_transform.py
+src/WaterFowlTools/reduce_duplications.py
+src/WaterFowlTools/split_dataset.py
+src/WaterFowlTools/split_dataset_classification.py
+src/WaterFowlTools.egg-info/PKG-INFO
+src/WaterFowlTools.egg-info/SOURCES.txt
+src/WaterFowlTools.egg-info/dependency_links.txt
+src/WaterFowlTools.egg-info/top_level.txt
