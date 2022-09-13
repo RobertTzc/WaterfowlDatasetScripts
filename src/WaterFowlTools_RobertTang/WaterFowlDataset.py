@@ -1,5 +1,7 @@
 #Base format of Waterfowl dataset torch loader, all the future implementation should based on this loader or evolve from it.
 import sys
+
+from cust_transform import random_crop_preset
 sys.path.append('/home/zt253/data/WaterfowlDataset/WaterfowlDatasetScripts/Split_data')
 from logging import root
 from anno_util import readTxt
@@ -14,18 +16,21 @@ from collections import defaultdict
 
 
 class WaterFowlDataset(data.Dataset):
-    def __init__(self,root_dir,csv_dir,cust_transform,torch_transform,task = 'altitude_split_Robert',phase = 'Train',**kwargs):
-        assert task in ['altitude_split_Robert','bbox_split_Robert','category_split_Robert']
-        df = pd.read_csv(csv_dir)
+    def __init__(self,root_dir,csv_dir,cust_transform,torch_transform,task = 'altitude_split_Robert',phase = 'train',**kwargs):
+        assert task in ['altitude_split_Robert','bbox_split_Robert','category_split_Robert'],"Current only support splits from \['altitude_split_Robert','bbox_split_Robert','category_split_Robert'\]"
+        assert phase in ['train','test'],"Phase only takes either 'train' or 'test'"
         self.image_dict = defaultdict(dict)
+        df = pd.read_csv(csv_dir)
+        assert task in df.columns,"{} is not found in current csv files: {}".format(task,csv_dir)
         for idx in range(len(df)):
             item = df.iloc[idx]
-            self.image_dict[item['image_name']] = dict()
-            for keys in item.keys():
-                if (keys== 'image_name'):
-                    pass
-                else:
-                    self.image_dict[item['image_name']][keys] = item[keys]
+            if (item[task] == phase):
+                self.image_dict[item['image_name']] = dict()
+                for keys in item.keys():
+                    if (keys== 'image_name'):
+                        pass
+                    else:
+                        self.image_dict[item['image_name']][keys] = item[keys]
         self.root_dir = root_dir            
         self.task = task
         self.phase = phase
@@ -43,12 +48,15 @@ class WaterFowlDataset(data.Dataset):
         image = cv2.cvtColor(cv2.imread(image_dir),cv2.COLOR_BGR2RGB)
         anno_data = readTxt(anno_dir)
         anno_data['altitude'] = self.image_dict[image_name]['height']
-        
-        
-        image,anno_data = self.cust_transform(image,anno_data)
+        if ('preset_size' in self.additinal_args):
+            image,anno_data = random_crop_preset(image,anno_data,self.additinal_args['preset_size'])#pre crop the image to save the resources, note this does not represent the final size of the image
+            image,anno_data = self.cust_transform(image,anno_data)#perform data aug that is customized
+            image,anno_data = random_crop_preset(image,anno_data,self.additinal_args['preset_size'])#crop image again to ensure the image size is desired
+        else:
+            image,anno_data = self.cust_transform(image,anno_data)#perform data aug that is customized
         anno_data['bbox'] = torch.from_numpy(np.asarray(anno_data['bbox'])).float()
         if (self.torch_transform):
-            image = self.torch_transform(image)
+            image = self.torch_transform(image)# perform data aug that within the torchvision lib, note no bbox operation at this stage.
         detection_labels = np.ones(len(anno_data['bbox']))
         detection_labels = torch.from_numpy(np.asarray(detection_labels)).long()
         anno_data['detection_labels'] = detection_labels
@@ -57,13 +65,15 @@ class WaterFowlDataset(data.Dataset):
         return len(self.image_dict)
     
 if __name__ == '__main__':
-    root_dir = '/home/zt253/data/WaterfowlDataset/Processed/Bird_D'
-    csv_dir = '/home/zt253/data/WaterfowlDataset/Processed/Bird_D/image_info.csv'
+    print ('*'*10+'testing')
+    root_dir = '/home/zt253/data/WaterfowlDataset/Processed/Bird_H'
+    csv_dir = '/home/zt253/data/WaterfowlDataset/Processed/Bird_H/image_info.csv'
     cust_transform = cust_sequence([RandomHorizontalFlip,RandomVerticalFlip,random_rotate],0.5)
     torch_transform = None
     task = 'bbox_split_Robert'
-    phase = 'Train'
-    dataset = WaterFowlDataset(root_dir=root_dir,csv_dir = csv_dir,cust_transform = cust_transform,torch_transform=None,task = task,phase = phase)
+    phase = 'test'
+    dataset = WaterFowlDataset(root_dir=root_dir,csv_dir = csv_dir,cust_transform = cust_transform,torch_transform=None,task = task,phase = phase,preset_size = 512)
+    print ('length of the dataset',len(dataset))
     for image,anno in dataset:
         print (image.shape)
         

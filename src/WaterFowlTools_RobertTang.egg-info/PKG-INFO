@@ -1,0 +1,24 @@
+Metadata-Version: 2.1
+Name: WaterFowlTools-RobertTang
+Version: 0.0.1
+Summary: WaterFowl Porjects Tools for ML
+Author-email: Robert Tang <zt253@umsystem.edu>
+Project-URL: Homepage, https://github.com/RobertTzc/WaterfowlDatasetScripts
+Project-URL: Bug Tracker, https://github.com/RobertTzc/WaterfowlDatasetScripts/issues
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.7
+Description-Content-Type: text/markdown
+License-File: LICENCE
+
+# WaterfowlDatasetScripts
+The repository contains all necessary scripts for Waterfowl dataset maintainence and utlization
+  anno_util.py:
+    necessary util funcs for read and operate dataset
+  Reduce_duplications.py
+    Designed to solve the redudant bounding box caused by cropped image labeling issue
+  split_dataset_classification.py
+    using loss func to find an optimal split point to split the dataset with balanced split on train and test distribution on each class
+  WriteTrainTestSplit.py
+    used to write an calculated split to applied on an existing image list.

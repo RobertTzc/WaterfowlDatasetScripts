@@ -1,0 +1,17 @@
+LICENCE
+README.md
+pyproject.toml
+src/WaterFowlTools_RobertTang/Apply_split.py
+src/WaterFowlTools_RobertTang/FixData_H_I.py
+src/WaterFowlTools_RobertTang/WaterFowlDataset.py
+src/WaterFowlTools_RobertTang/WriteTrainTestSplit.py
+src/WaterFowlTools_RobertTang/__init__.py
+src/WaterFowlTools_RobertTang/anno_util.py
+src/WaterFowlTools_RobertTang/cust_transform.py
+src/WaterFowlTools_RobertTang/reduce_duplications.py
+src/WaterFowlTools_RobertTang/split_dataset.py
+src/WaterFowlTools_RobertTang/split_dataset_classification.py
+src/WaterFowlTools_RobertTang.egg-info/PKG-INFO
+src/WaterFowlTools_RobertTang.egg-info/SOURCES.txt
+src/WaterFowlTools_RobertTang.egg-info/dependency_links.txt
+src/WaterFowlTools_RobertTang.egg-info/top_level.txt

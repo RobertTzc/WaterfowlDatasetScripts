@@ -37,6 +37,8 @@ def get_image_dict(root_dir,csv_dir,anno_title = 'classification_name'):
             image_dict[image_name]['category'] = readTxt(root_dir+'/'+txt_name)['category']
             image_dict[image_name]['altitude'] = [altitude]*len(readTxt(root_dir+'/'+txt_name)['category'])
             image_dict[image_name]['bbox'] = readTxt(root_dir+'/'+txt_name)['bbox']
+            if ('background_info' in df.columns):
+                image_dict[image_name]['background_info'] = [df.iloc[i]['background_info']]*len(readTxt(root_dir+'/'+txt_name)['category'])
     return image_dict
 def get_bins(image_dict,title):
     attribute_list = []
@@ -58,6 +60,7 @@ def get_ideal_train_split(image_dict,ratio = 0.8,title = 'category'):
         attribute_list = [bins[i-1] for i in cat]
     else:
         for image_name in image_dict.keys():
+            print (image_dict[image_name])
             attribute_list.extend(image_dict[image_name][title])
     ct = Counter(attribute_list)
     for key in ct.keys():
@@ -71,6 +74,7 @@ def calculate_loss(train_list,image_dict,ideal_train_split,title):
         bins = get_bins(image_dict,title)
         for image_name in train_list:
             freq.append(len(image_dict[image_name][title]))
+        print (freq)
         cat = np.digitize(freq, bins)
         freq = [bins[i-1] for i in cat]
     else:
@@ -159,11 +163,12 @@ def visual_distribution(train_list,image_dict,target_dir,title = 'category'):
     plt.show()
     
 if __name__ == '__main__':
-    title = 'altitude'
+    #title = 'altitude'
     #title = 'bbox'
     #title = 'category'
-    folder_name = 'Bird_D'
-    #anno_title = 'classification_name'
+    title = 'background_info'
+    folder_name = 'Bird_H'
+    anno_title = 'classification_name'
     anno_title = 'annotation_name'
     image_dict= get_image_dict(root_dir = '/home/zt253/data/WaterfowlDataset/Processed/{}'.format(folder_name),
                                csv_dir ='/home/zt253/data/WaterfowlDataset/Processed/{}/image_info.csv'.format(folder_name),

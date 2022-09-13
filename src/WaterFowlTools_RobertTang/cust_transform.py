@@ -98,6 +98,21 @@ def corners2points(corners):
             cor[1], cor[3]), max(cor[0], cor[2]), max(cor[1], cor[3])]])
     return bbox
 
+def random_crop_preset(image,anno_data,size):
+    h,w = image.shape[:2]
+    dw,dh = w-size,h-size
+    rand_w = random.randint(0,dw)
+    rand_h = random.randint(0,dh)
+    image = image[rand_h:size+rand_h,rand_w:rand_w+size,:]
+    bbox = anno_data['bbox']
+    new_bbox = []
+    for box in bbox:
+        if((min(box[0],box[2])>=rand_w or max(box[0],box[2])<=rand_w+size)
+           and (min(box[1],box[3])>=rand_h or max(box[1],box[3])<=rand_h+size)):
+            new_bbox.append([box[0]-rand_w,box[1]-rand_h,box[2]-rand_w,box[3]-rand_h])
+    anno_data['bbox'] = new_bbox
+    return image,anno_data
+    
 
 def random_rotate(image, anno_data, angle = random.randint(0,180)):
     """
@@ -166,8 +181,7 @@ class cust_sequence(object):
 
 def display_image(image, anno_data):
     for box in anno_data['bbox']:
-        image = cv2.rectangle(
-            image, (box[0], box[1]), (box[2], box[3]), (255, 0, 0), 3)
+        image = cv2.rectangle(image, (box[0], box[1]), (box[2], box[3]), (255, 0, 0), 3)
     plt.imshow(image)
     plt.show()
 
@@ -178,6 +192,6 @@ if __name__ == '__main__':
     image = cv2.cvtColor(cv2.imread(image_dir), cv2.COLOR_BGR2RGB)
     anno_data = readTxt(
         '/home/zt253/data/WaterfowlDataset/Processed/Bird_E/mar2019_clipped_MODOC1214_0015GSD_LINE03B0552.txt')
-    image, anno_data = RandomHorizontalFlip(image, anno_data)
+    image, anno_data = random_crop_preset(image,anno_data,200)
     print(anno_data['bbox'])
     display_image(image, anno_data)

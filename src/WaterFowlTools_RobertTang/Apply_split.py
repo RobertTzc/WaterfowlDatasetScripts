@@ -16,7 +16,7 @@ split_dict = {
     'Bird_E':['bbox'],
     'Bird_F':['bbox'],
     'Bird_G':['altitude','bbox'],
-    'Bird_H':['altitude','bbox','category'],
+    'Bird_H':['altitude','bbox','category','background_info'],
     'Bird_I':['bbox','category'],
     'Bird_J':['altitude','bbox'],
 }
