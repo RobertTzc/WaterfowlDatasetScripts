@@ -27,13 +27,14 @@ def RandomVerticalFlip(image, anno_data):
 
     image = cv2.flip(image, 1)
     bbox = np.asarray(anno_data['bbox'])
-    bbox[:, [0, 2]] += 2*(image_center[[0, 2]] - bbox[:, [0, 2]])
+    if (bbox!=[]):
+        bbox[:, [1, 3]] += 2*(image_center[[1, 3]] - bbox[:, [1, 3]])
 
-    box_w = abs(bbox[:, 0] - bbox[:, 2])
+        box_w = abs(bbox[:, 1] - bbox[:, 3])
 
-    bbox[:, 0] -= box_w
-    bbox[:, 2] += box_w
-    anno_data['bbox'] = bbox
+        bbox[:, 1] -= box_w
+        bbox[:, 3] += box_w
+        anno_data['bbox'] = bbox
     return image, anno_data
 
 
@@ -43,13 +44,14 @@ def RandomHorizontalFlip(image, anno_data):
 
     image = cv2.flip(image, 0)
     bbox = np.asarray(anno_data['bbox'])
-    bbox[:, [1, 3]] += 2*(image_center[[1, 3]] - bbox[:, [1, 3]])
+    if (bbox!=[]):
+        bbox[:, [1, 3]] += 2*(image_center[[1, 3]] - bbox[:, [1, 3]])
 
-    box_w = abs(bbox[:, 1] - bbox[:, 3])
+        box_w = abs(bbox[:, 1] - bbox[:, 3])
 
-    bbox[:, 1] -= box_w
-    bbox[:, 3] += box_w
-    anno_data['bbox'] = bbox
+        bbox[:, 1] -= box_w
+        bbox[:, 3] += box_w
+        anno_data['bbox'] = bbox
     return image, anno_data
 
 
@@ -97,13 +99,14 @@ def random_crop_preset(image, anno_data, size):
     rand_h = random.randint(0, dh)
     image = image[rand_h:size+rand_h, rand_w:rand_w+size, :]
     bbox = anno_data['bbox']
-    new_bbox = []
-    for box in bbox:
-        if((min(box[0], box[2]) >= rand_w or max(box[0], box[2]) <= rand_w+size)
-           and (min(box[1], box[3]) >= rand_h or max(box[1], box[3]) <= rand_h+size)):
-            new_bbox.append([box[0]-rand_w, box[1]-rand_h,
-                            box[2]-rand_w, box[3]-rand_h])
-    anno_data['bbox'] = new_bbox
+    if (bbox!=[]):
+        new_bbox = []
+        for box in bbox:
+            if((min(box[0], box[2]) >= rand_w or max(box[0], box[2]) <= rand_w+size)
+            and (min(box[1], box[3]) >= rand_h or max(box[1], box[3]) <= rand_h+size)):
+                new_bbox.append([box[0]-rand_w, box[1]-rand_h,
+                                box[2]-rand_w, box[3]-rand_h])
+        anno_data['bbox'] = new_bbox
     return image, anno_data
 
 
@@ -122,11 +125,12 @@ def random_crop_preset(image,anno_data,size):
     image = image[rand_h:size+rand_h,rand_w:rand_w+size,:]
     bbox = anno_data['bbox']
     new_bbox = []
-    for box in bbox:
-        if((min(box[0],box[2])>=rand_w or max(box[0],box[2])<=rand_w+size)
-           and (min(box[1],box[3])>=rand_h or max(box[1],box[3])<=rand_h+size)):
-            new_bbox.append([box[0]-rand_w,box[1]-rand_h,box[2]-rand_w,box[3]-rand_h])
-    anno_data['bbox'] = new_bbox
+    if (bbox!=[]):
+        for box in bbox:
+            if((min(box[0],box[2])>=rand_w or max(box[0],box[2])<=rand_w+size)
+            and (min(box[1],box[3])>=rand_h or max(box[1],box[3])<=rand_h+size)):
+                new_bbox.append([box[0]-rand_w,box[1]-rand_h,box[2]-rand_w,box[3]-rand_h])
+        anno_data['bbox'] = new_bbox
     return image,anno_data
     
 
@@ -134,10 +138,7 @@ def random_rotate(image, anno_data, angle = random.randint(0,180)):
     """
     Rotate the bounding box
     """
-    corners = points2corners(anno_data['bbox'])
-    corners = corners.reshape(-1, 2)
-    corners = np.hstack(
-        (corners, np.ones((corners.shape[0], 1), dtype=type(corners[0][0]))))
+    bbox = anno_data['bbox']
     (h, w) = image.shape[:2]
     (cx, cy) = (w // 2, h // 2)
     M = cv2.getRotationMatrix2D((cx, cy), angle, 1.0)
@@ -146,14 +147,19 @@ def random_rotate(image, anno_data, angle = random.randint(0,180)):
 
     nW = int((h * sin) + (w * cos))
     nH = int((h * cos) + (w * sin))
-    # adjust the rotation matrix to take into account translation
-    M[0, 2] += (nW / 2) - cx
-    M[1, 2] += (nH / 2) - cy
-    # Prepare the vector to be transformed
-    calculated = np.dot(M, corners.T).T
-    calculated = calculated.reshape(-1, 8)
-    rotated_box = get_enclosing_box(calculated)
-    anno_data['bbox'] = corners2points(rotated_box)
+    if (bbox!=[]):
+        corners = points2corners(anno_data['bbox'])
+        corners = corners.reshape(-1, 2)
+        corners = np.hstack(
+            (corners, np.ones((corners.shape[0], 1), dtype=type(corners[0][0]))))
+        # adjust the rotation matrix to take into account translation
+        M[0, 2] += (nW / 2) - cx
+        M[1, 2] += (nH / 2) - cy
+        # Prepare the vector to be transformed
+        calculated = np.dot(M, corners.T).T
+        calculated = calculated.reshape(-1, 8)
+        rotated_box = get_enclosing_box(calculated)
+        anno_data['bbox'] = corners2points(rotated_box)
 
     # perform the actual rotation and return the image
     image = cv2.warpAffine(image, M, (nW, nH))
