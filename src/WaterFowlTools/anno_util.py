@@ -45,3 +45,8 @@ def assign_image_based_label(root_dir,csv_dir):
         except:
             pass
     return image_list,anno_list
+
+def writeTxt(txt_dir,category,bbox):
+    with open(txt_dir,'w') as f:
+        for i in range(len(category)):
+            f.writelines('{},{},{},{},{}\n'.format(category[i],bbox[i][0],bbox[i][1],bbox[i][2],bbox[i][3]))    
