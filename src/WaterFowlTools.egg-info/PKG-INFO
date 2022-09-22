@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: WaterFowlTools
-Version: 0.0.6
+Version: 0.0.7
 Summary: WaterFowl Porjects Tools for ML
 Author-email: Robert Tang <zt253@umsystem.edu>
 Project-URL: Homepage, https://github.com/RobertTzc/WaterfowlDatasetScripts
@@ -33,7 +33,10 @@ License-File: LICENCE
         p = 0.5) #probability of each transformation, could be list, must match the size of transforms
 #### Other funcs:
       altitude_based_scale(image, anno_data, ref_altitude=60)#scale the image ref to a preset altitude
-<!-- ### anno_util.py:
+
+##Extras
+
+### anno_util.py:
 necessary util funcs for read and operate dataset
   #### func: GSD_calculation(image,anno_data,drone_type = 'Pro2')
   Reduce_duplications.py
@@ -41,4 +44,11 @@ necessary util funcs for read and operate dataset
   split_dataset_classification.py
     using loss func to find an optimal split point to split the dataset with balanced split on train and test distribution on each class
   WriteTrainTestSplit.py
-    used to write an calculated split to applied on an existing image list. -->
+    used to write an calculated split to applied on an existing image list.
+
+
+    ###util.py
+    Func: py_cpu_nms(dets,thresh=0.25), use NMS to filter heavily overlapped images, default IOU threshold is set to be 0.25, Also adding extra step to remove tiny bbox that lay inside the large bbox that cannot be filtered by the IOU thresh
+    Func: get_image_taking_conditions(image_dir), given an image_dir, read the image meta data(if exists) and return a dict contains ISO,shutter,aperture,image_name,altitude info.
+    Func get_sub_image(mega_image,overlap=0.2,ratio=1,cropSize = 512), crop the original image based on overlap, ratio and crop size
+	the actual size of the cropped images will be ratio * cropSize to be adaptive to the alti

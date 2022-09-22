@@ -9,6 +9,7 @@ src/WaterFowlTools/WriteTrainTestSplit.py
 src/WaterFowlTools/__init__.py
 src/WaterFowlTools/anno_util.py
 src/WaterFowlTools/cust_transform.py
+src/WaterFowlTools/mAp.py
 src/WaterFowlTools/reduce_duplications.py
 src/WaterFowlTools/split_dataset.py
 src/WaterFowlTools/split_dataset_classification.py
