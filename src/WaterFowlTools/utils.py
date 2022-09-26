@@ -81,15 +81,15 @@ def get_sub_image(mega_image,overlap=0.2,ratio=1,cropSize = 512):
 	return sub_image_list,coor_list
 
 
-def get_GSD(anno_data, camera_type='Pro2', ref_altitude=60):
-    height = anno_data['altitude']
+def get_GSD(altitude,camera_type='Pro2', ref_altitude=60):
+
     if (camera_type == 'Pro2'):
         ref_GSD = (13.2 * ref_altitude)/(10.26*5472)
-        GSD = (13.2 * height)/(10.26*5472)
+        GSD = (13.2 * altitude)/(10.26*5472)
     elif (camera_type == 'Air2'):
         ref_GSD = (6.4*ref_altitude)/(4.3*8000)
-        GSD = (6.4*height)/(4.3*8000)
+        GSD = (6.4*altitude)/(4.3*8000)
     else:
         ref_GSD = (13.2 * ref_altitude)/(10.26*5472)
-        GSD = (13.2 * height)/(10.26*5472)
+        GSD = (13.2 * altitude)/(10.26*5472)
     return GSD, ref_GSD

@@ -21,7 +21,9 @@ def readTxt(txt_dir):
     category = []
     for line in data:
         line = line.replace('\n','').split(',')
-        bbox.append([int(i) for i in line[1:]])
+        box = ([int(i) for i in line[1:]])
+        box = [min(box[0],box[2]),min(box[1],box[3]),max(box[0],box[2]),max(box[1],box[3])]
+        bbox.append(box)
         category.append(line[0])
     re = {'bbox':bbox,'category':category}
     return re

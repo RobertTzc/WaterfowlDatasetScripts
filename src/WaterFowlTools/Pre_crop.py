@@ -117,8 +117,8 @@ class WaterFowlDataset_crop(object):
 
 
 if __name__ == '__main__':
-    dataset = WaterFowlDataset_crop(root_dir='/home/zt253/data/WaterfowlDataset/Processed/Bird_D',
-                                    csv_dir='/home/zt253/data/WaterfowlDataset/Processed/Bird_D/image_info.csv'
+    dataset = WaterFowlDataset_crop(root_dir='/home/zt253/data/WaterfowlDataset/Processed/Bird_G',
+                                    csv_dir='/home/zt253/data/WaterfowlDataset/Processed/Bird_G/image_info.csv'
                                     )
     dataset.side_by_side_crop(crop_size=512, overlap=0.2,
-                              target_dir='/home/zt253/data/WaterfowlDataset/Processed/Bird_D_512Crop')
+                              target_dir='/home/zt253/data/WaterfowlDataset/Processed/Bird_G_512Crop')
