@@ -118,7 +118,7 @@ def voc_ap(rec, prec):
     return ap, mrec, mpre
 
 
-def mAp_calculate(image_name_list, gt_txt_list, pred_txt_list, iou_thresh=0.3):
+def mAp_calculate(image_name_list, gt_txt_list, pred_txt_list, iou_thresh=0.2):
     tp = 0
     fp = 0
     gt_dict = {}

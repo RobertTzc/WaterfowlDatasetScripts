@@ -79,15 +79,18 @@ class WaterFowlDataset(data.Dataset):
 
 if __name__ == '__main__':
     print('*'*10+'testing')
-    root_dir = '/home/zt253/data/WaterfowlDataset/Processed/Bird_H'
-    csv_dir = '/home/zt253/data/WaterfowlDataset/Processed/Bird_H/image_info.csv'
+    root_dir = '/home/zt253/data/WaterfowlDataset/Processed/Bird_G_512Crop'
+    csv_dir = '/home/zt253/data/WaterfowlDataset/Processed/Bird_G_512Crop/image_info.csv'
     cust_transform = cust_sequence(
         [RandomHorizontalFlip, RandomVerticalFlip, random_rotate], 0.5)
     torch_transform = None
     task = 'bbox_split_Robert'
-    phase = 'test'
+    phase = 'train'
     dataset = WaterFowlDataset(root_dir=root_dir, csv_dir=csv_dir, cust_transform=cust_transform,
                                torch_transform=None, task=task, phase=phase, preset_size=512)
     print('length of the dataset', len(dataset))
+    from collections import Counter
+    altitude = []
     for image, anno in dataset:
-        print(image.shape)
+        altitude.append(anno['altitude'])
+    print (Counter(altitude),sum(Counter(altitude).values()))
